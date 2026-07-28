@@ -2,7 +2,7 @@
    CommerceOS — Auth API Tests
    ============================================================================= */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { tokenStore } from '../../api/axios';
 import type { AuthTokens } from '../../api/axios';
 
@@ -32,6 +32,7 @@ import {
   logoutAll,
   getCurrentUser,
   createUser,
+  signUp,
   type LoginRequest,
   type CreateUserRequest,
   type UserResponse,
@@ -54,7 +55,7 @@ describe('auth API', () => {
       };
 
       (api.post as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        data: mockTokens,
+        data: { success: true, message: 'Login successful', data: mockTokens },
       });
 
       const request: LoginRequest = {
@@ -84,6 +85,32 @@ describe('auth API', () => {
     });
   });
 
+  describe('signUp', () => {
+    it('should call POST /auth/signup and store tokens', async () => {
+      const mockTokens: AuthTokens = {
+        accessToken: 'access-123',
+        refreshToken: 'refresh-456',
+      };
+
+      (api.post as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        data: { success: true, message: 'User registered successfully', data: mockTokens },
+      });
+
+      const result = await signUp({
+        username: 'testuser',
+        email: 'test@example.com',
+        password: 'Password123',
+      });
+
+      expect(api.post).toHaveBeenCalledWith('/auth/signup', {
+        username: 'testuser',
+        email: 'test@example.com',
+        password: 'Password123',
+      });
+      expect(result).toEqual(mockTokens);
+    });
+  });
+
   describe('logout', () => {
     it('should call POST /auth/logout and clear tokens', async () => {
       tokenStore.setTokens({
@@ -91,7 +118,9 @@ describe('auth API', () => {
         refreshToken: 'refresh-456',
       });
 
-      (api.post as ReturnType<typeof vi.fn>).mockResolvedValueOnce({});
+      (api.post as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        data: { success: true, message: 'Logged out successfully' },
+      });
 
       await logout('refresh-456');
 
@@ -112,8 +141,6 @@ describe('auth API', () => {
         new Error('Network error'),
       );
 
-      // The raw logout function throws on failure, leaving tokens intact.
-      // The AuthContext wrapper handles clearing via try/catch/finally.
       await expect(logout('refresh-456')).rejects.toThrow('Network error');
       expect(tokenStore.getAccessToken()).toBe('access-123');
       expect(tokenStore.getRefreshToken()).toBe('refresh-456');
@@ -127,7 +154,9 @@ describe('auth API', () => {
         refreshToken: 'refresh-456',
       });
 
-      (api.post as ReturnType<typeof vi.fn>).mockResolvedValueOnce({});
+      (api.post as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        data: { success: true, message: 'All sessions logged out successfully' },
+      });
 
       await logoutAll();
 
@@ -150,7 +179,7 @@ describe('auth API', () => {
       };
 
       (api.get as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        data: mockUser,
+        data: { success: true, message: 'Profile fetched', data: mockUser },
       });
 
       const result = await getCurrentUser();
@@ -181,7 +210,7 @@ describe('auth API', () => {
       };
 
       (api.post as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        data: mockUser,
+        data: { success: true, message: 'User created', data: mockUser },
       });
 
       const request: CreateUserRequest = {

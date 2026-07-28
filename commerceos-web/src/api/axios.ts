@@ -133,18 +133,19 @@ api.interceptors.response.use(
         throw new Error('No refresh token available');
       }
 
-      const { data } = await axios.post<AuthTokens>(
+      const { data } = await axios.post<{ data: AuthTokens }>(
         `${
           import.meta.env.VITE_API_BASE_URL ?? '/api/v1'
         }/auth/refresh`,
         { refreshToken },
       );
 
-      tokenStore.setTokens(data);
-      processQueue(null, data.accessToken);
+      const tokens = data.data;
+      tokenStore.setTokens(tokens);
+      processQueue(null, tokens.accessToken);
 
       if (originalRequest.headers) {
-        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${tokens.accessToken}`;
       }
       return api(originalRequest);
     } catch (refreshError) {
