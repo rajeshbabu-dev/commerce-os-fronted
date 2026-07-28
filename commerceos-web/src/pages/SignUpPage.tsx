@@ -17,7 +17,7 @@ import { useAuth } from '../context/AuthContext';
 // ---------------------------------------------------------------------------
 
 export default function SignUpPage() {
-  const { signUp, isAuthenticated, isLoading: authLoading, error: authError } = useAuth();
+  const { signUp, isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   if (isAuthenticated && !authLoading) {
@@ -32,6 +32,7 @@ export default function SignUpPage() {
     email?: string;
     password?: string;
   }>({});
+  const [apiError, setApiError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // ---------------------------------------------------------------------------
