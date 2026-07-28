@@ -84,8 +84,8 @@ export default function SignUpPage() {
       // Registration succeeded — navigate to login
       navigate('/login', { replace: true });
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: { detail?: string } } };
-      const detail = axiosErr.response?.data?.detail ?? 'Registration failed. Please try again.';
+      const axiosErr = err as { response?: { data?: { message?: string; detail?: string } } };
+      const detail = axiosErr.response?.data?.message ?? axiosErr.response?.data?.detail ?? 'Registration failed. Please try again.';
       setApiError(detail);
     } finally {
       setIsLoading(false);

@@ -124,9 +124,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         err instanceof Error
           ? err.message
           : 'Login failed. Please check your credentials.';
-      // Try to extract the API error detail
-      const axiosErr = err as { response?: { data?: { detail?: string } } };
-      const detail = axiosErr.response?.data?.detail ?? message;
+      const axiosErr = err as { response?: { data?: { message?: string; detail?: string } } };
+      const detail = axiosErr.response?.data?.message ?? axiosErr.response?.data?.detail ?? message;
       setState((prev) => ({
         ...prev,
         isLoading: false,
@@ -151,8 +150,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           err instanceof Error
             ? err.message
             : 'Registration failed. Please try again.';
-        const axiosErr = err as { response?: { data?: { detail?: string } } };
-        const detail = axiosErr.response?.data?.detail ?? message;
+        const axiosErr = err as { response?: { data?: { message?: string; detail?: string } } };
+        const detail = axiosErr.response?.data?.message ?? axiosErr.response?.data?.detail ?? message;
         setState((prev) => ({
           ...prev,
           isLoading: false,
