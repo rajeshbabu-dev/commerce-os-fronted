@@ -1,0 +1,19 @@
+# =============================================================================
+# CommerceOS Frontend — Development Docker Compose
+# =============================================================================
+# Usage: docker compose up --build
+#
+# Builds the frontend with Nginx and serves it on http://localhost:80.
+# For Vite hot-reload development, run locally instead:
+#   npm run dev  (serves on http://localhost:5173)
+# =============================================================================
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: commerceos-frontend
+    ports:
+      - "80:80"
+    restart: unless-stopped
