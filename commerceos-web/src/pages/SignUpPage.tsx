@@ -9,15 +9,20 @@
    ============================================================================= */
 
 import { useState, type FormEvent } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { signUp } from '../api/auth';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 export default function SignUpPage() {
+  const { signUp, isAuthenticated, isLoading: authLoading, error: authError } = useAuth();
   const navigate = useNavigate();
+
+  if (isAuthenticated && !authLoading) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -27,7 +32,6 @@ export default function SignUpPage() {
     email?: string;
     password?: string;
   }>({});
-  const [apiError, setApiError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // ---------------------------------------------------------------------------

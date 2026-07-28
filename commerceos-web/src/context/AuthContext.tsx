@@ -15,6 +15,7 @@ import {
 } from 'react';
 import {
   login as apiLogin,
+  signUp as apiSignUp,
   logout as apiLogout,
   getCurrentUser,
   type UserResponse,
@@ -35,6 +36,7 @@ interface AuthState {
 
 interface AuthActions {
   login: (email: string, password: string) => Promise<void>;
+  signUp: (username: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
 }
@@ -134,6 +136,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const signUp = useCallback(
+    async (username: string, email: string, password: string) => {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+      try {
+        await apiSignUp({ username, email, password });
+        const user = await getCurrentUser();
+        setState({
+          user,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        });
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error
+            ? err.message
+            : 'Registration failed. Please try again.';
+        const axiosErr = err as { response?: { data?: { detail?: string } } };
+        const detail = axiosErr.response?.data?.detail ?? message;
+        setState((prev) => ({
+          ...prev,
+          isLoading: false,
+          error: detail,
+        }));
+        throw err;
+      }
+    },
+    [],
+  );
+
   const logout = useCallback(async () => {
     const refreshToken = tokenStore.getRefreshToken();
     try {
@@ -165,10 +197,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => ({
       ...state,
       login,
+      signUp,
       logout,
       clearError,
     }),
-    [state, login, logout, clearError],
+    [state, login, signUp, logout, clearError],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

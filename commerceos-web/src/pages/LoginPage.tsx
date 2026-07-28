@@ -8,16 +8,19 @@
    ============================================================================= */
 
 import { useState, type FormEvent } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
-  const { login, isLoading, error, clearError } = useAuth();
+  const { login, isAuthenticated, isLoading, error, clearError } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // If user is already authenticated, redirect to dashboard (or previous page)
+  // Redirect if already authenticated
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? '/dashboard';
+  if (isAuthenticated && !isLoading) {
+    return <Navigate to={from} replace />;
+  }
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
