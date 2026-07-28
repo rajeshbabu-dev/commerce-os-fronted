@@ -80,13 +80,9 @@ export default function SignUpPage() {
     setIsLoading(true);
 
     try {
-      await signUp({
-        username: username.trim(),
-        email: email.trim(),
-        password,
-      });
-      // Auto-login succeeded — navigate to dashboard
-      navigate('/dashboard', { replace: true });
+      await signUp(username.trim(), email.trim(), password);
+      // Registration succeeded — navigate to login
+      navigate('/login', { replace: true });
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { detail?: string } } };
       const detail = axiosErr.response?.data?.detail ?? 'Registration failed. Please try again.';

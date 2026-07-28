@@ -141,13 +141,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
       try {
         await apiSignUp({ username, email, password });
-        const user = await getCurrentUser();
-        setState({
-          user,
-          isAuthenticated: true,
+        setState((prev) => ({
+          ...prev,
           isLoading: false,
           error: null,
-        });
+        }));
       } catch (err: unknown) {
         const message =
           err instanceof Error

@@ -84,9 +84,7 @@ export async function createUser(
   return data.data;
 }
 
-export async function signUp(request: SignUpRequest): Promise<AuthTokens> {
-  const { data } = await api.post<ApiResponse<AuthTokens>>('/auth/signup', request);
-  const tokens = data.data;
-  tokenStore.setTokens(tokens);
-  return tokens;
+export async function signUp(request: SignUpRequest): Promise<UserResponse> {
+  const { data } = await api.post<ApiResponse<UserResponse>>('/auth/signup', request);
+  return data.data;
 }
