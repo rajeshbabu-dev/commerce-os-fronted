@@ -17,6 +17,7 @@ import SignUpPage from './pages/SignUpPage';
 import DashboardPage from './pages/DashboardPage';
 import AdminUserManagementPage from './pages/AdminUserManagementPage';
 import TestAuthPage from './pages/TestAuthPage';
+import InventoryListPage from './pages/InventoryListPage';
 
 // Placeholder pages for future tickets
 function PlaceholderPage({ title }: { title: string }) {
@@ -32,9 +33,6 @@ function PlaceholderPage({ title }: { title: string }) {
   );
 }
 
-function InventoryPage() {
-  return <PlaceholderPage title="Inventory Management" />;
-}
 function SuppliersPage() {
   return <PlaceholderPage title="Supplier Management" />;
 }
@@ -71,7 +69,7 @@ export default function App() {
           >
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="inventory" element={<InventoryPage />} />
+            <Route path="inventory" element={<InventoryListPage />} />
             <Route path="suppliers" element={<SuppliersPage />} />
             <Route path="recommendations" element={<RecommendationsPage />} />
             <Route path="purchase-orders" element={<PurchaseOrdersPage />} />
