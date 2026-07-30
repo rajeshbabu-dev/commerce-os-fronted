@@ -2,8 +2,7 @@
    CommerceOS — Recommendation Card Component
    =============================================================================
    Displays a single purchase recommendation with product, supplier, quantity,
-   and cost breakdown. Uses a special violet panel for AI reasoning text per
-   08-FRONTEND-SPEC.md §1.
+   and cost breakdown in INR (₹). Uses a special violet panel for AI reasoning text.
    ============================================================================= */
 
 import type { PurchaseRecommendationResponse } from '../api/recommendation';
@@ -41,6 +40,13 @@ function UrgencyBadge({ urgency }: { urgency: string }) {
   }
 }
 
+// Helper to truncate long UUID strings cleanly
+function formatMinimalId(id: string): string {
+  if (!id) return '';
+  if (id.length <= 12) return id;
+  return `${id.slice(0, 8)}...`;
+}
+
 // ---------------------------------------------------------------------------
 // Main Component
 // ---------------------------------------------------------------------------
@@ -64,14 +70,17 @@ export default function RecommendationCard({
     status,
   } = recommendation;
 
-  const formattedUnitCost = new Intl.NumberFormat('en-US', {
+  // Format currency in Indian Rupees (INR / ₹)
+  const formattedUnitCost = new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
+    maximumFractionDigits: 2,
   }).format(unitCost);
 
-  const formattedTotalCost = new Intl.NumberFormat('en-US', {
+  const formattedTotalCost = new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
+    maximumFractionDigits: 2,
   }).format(estimatedTotalCost);
 
   const confidencePercentage = Math.round(confidenceScore * 100);
@@ -82,17 +91,17 @@ export default function RecommendationCard({
       <div>
         <div className="flex items-start justify-between gap-2 mb-2">
           <div>
-            <h3 className="text-base font-semibold text-slate-900 font-mono">
-              Product ID: {productId}
+            <h3 className="text-sm font-semibold text-slate-900 font-mono" title={productId}>
+              Product: {formatMinimalId(productId)}
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Supplier ID: <span className="font-mono">{recommendedSupplierId}</span>
+            <p className="text-[11px] text-slate-400 mt-0.5" title={recommendedSupplierId}>
+              Supplier ID: <span className="font-mono text-slate-500">{formatMinimalId(recommendedSupplierId)}</span>
             </p>
           </div>
           <UrgencyBadge urgency={urgencyLevel} />
         </div>
 
-        {/* Quantities & Pricing Metrics */}
+        {/* Quantities & Pricing Metrics in INR */}
         <div className="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-md my-3 text-center">
           <div>
             <span className="block text-xs text-slate-500">Rec Qty</span>
@@ -102,13 +111,13 @@ export default function RecommendationCard({
           </div>
           <div>
             <span className="block text-xs text-slate-500">Unit Cost</span>
-            <span className="font-mono text-sm font-semibold text-slate-900">
+            <span className="font-mono text-xs font-semibold text-slate-900">
               {formattedUnitCost}
             </span>
           </div>
           <div>
             <span className="block text-xs text-slate-500 font-medium">Est Total</span>
-            <span className="font-mono text-sm font-bold text-indigo-700">
+            <span className="font-mono text-xs font-bold text-indigo-700">
               {formattedTotalCost}
             </span>
           </div>

@@ -126,8 +126,8 @@ describe('RecommendationListPage', () => {
     expect(screen.getByText('Est Total Spend')).toBeInTheDocument();
 
     // Product IDs on cards
-    expect(screen.getByText('Product ID: prod-001')).toBeInTheDocument();
-    expect(screen.getByText('Product ID: prod-002')).toBeInTheDocument();
+    expect(screen.getByText(/prod-001/)).toBeInTheDocument();
+    expect(screen.getByText(/prod-002/)).toBeInTheDocument();
 
     // Check AI reasoning box & fallback
     expect(screen.getByText('Urgent stockout expected in 2 days.')).toBeInTheDocument();
@@ -148,22 +148,22 @@ describe('RecommendationListPage', () => {
     renderWithProviders();
 
     // Initially ALL recommendations are shown
-    expect(screen.getByText('Product ID: prod-001')).toBeInTheDocument();
-    expect(screen.getByText('Product ID: prod-003')).toBeInTheDocument();
+    expect(screen.getByText(/prod-001/)).toBeInTheDocument();
+    expect(screen.getByText(/prod-003/)).toBeInTheDocument();
 
     // Switch to Open tab
     const openTab = screen.getByRole('button', { name: 'Open' });
     fireEvent.click(openTab);
 
-    expect(screen.getByText('Product ID: prod-001')).toBeInTheDocument();
-    expect(screen.queryByText('Product ID: prod-003')).toBeNull();
+    expect(screen.getByText(/prod-001/)).toBeInTheDocument();
+    expect(screen.queryByText(/prod-003/)).toBeNull();
 
     // Switch to Dismissed tab
     const dismissedTab = screen.getByRole('button', { name: 'Dismissed' });
     fireEvent.click(dismissedTab);
 
-    expect(screen.queryByText('Product ID: prod-001')).toBeNull();
-    expect(screen.getByText('Product ID: prod-003')).toBeInTheDocument();
+    expect(screen.queryByText(/prod-001/)).toBeNull();
+    expect(screen.getByText(/prod-003/)).toBeInTheDocument();
   });
 
   it('calls dismiss mutation when Dismiss button is clicked', () => {

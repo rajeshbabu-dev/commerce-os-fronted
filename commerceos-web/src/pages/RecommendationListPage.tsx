@@ -31,9 +31,10 @@ function SummaryCards({
     .filter((r) => r.status === 'OPEN')
     .reduce((sum, r) => sum + (r.estimatedTotalCost || 0), 0);
 
-  const formattedSpend = new Intl.NumberFormat('en-US', {
+  const formattedSpend = new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
+    maximumFractionDigits: 2,
   }).format(estTotalSpend);
 
   const cards = [
