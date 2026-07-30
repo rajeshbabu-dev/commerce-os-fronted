@@ -3,6 +3,7 @@
    ============================================================================= */
 
 import api from './axios';
+import type { ApiResponse } from './auth';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -19,6 +20,6 @@ export interface HealthResponse {
 // ---------------------------------------------------------------------------
 
 export async function checkHealth(): Promise<HealthResponse> {
-  const { data } = await api.get<HealthResponse>('/health');
-  return data;
+  const { data } = await api.get<ApiResponse<HealthResponse>>('/health');
+  return data.data;
 }
