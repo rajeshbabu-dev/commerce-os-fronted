@@ -18,6 +18,7 @@ import DashboardPage from './pages/DashboardPage';
 import AdminUserManagementPage from './pages/AdminUserManagementPage';
 import InventoryListPage from './pages/InventoryListPage';
 import SupplierListPage from './pages/SupplierListPage';
+import RecommendationListPage from './pages/RecommendationListPage';
 
 // Placeholder pages for future tickets
 function PlaceholderPage({ title }: { title: string }) {
@@ -33,9 +34,6 @@ function PlaceholderPage({ title }: { title: string }) {
   );
 }
 
-function RecommendationsPage() {
-  return <PlaceholderPage title="Purchase Recommendations" />;
-}
 function PurchaseOrdersPage() {
   return <PlaceholderPage title="Purchase Orders" />;
 }
@@ -68,7 +66,7 @@ export default function App() {
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="inventory" element={<InventoryListPage />} />
             <Route path="suppliers" element={<SupplierListPage />} />
-            <Route path="recommendations" element={<RecommendationsPage />} />
+            <Route path="recommendations" element={<RecommendationListPage />} />
             <Route path="purchase-orders" element={<PurchaseOrdersPage />} />
             <Route path="approvals" element={<ApprovalsPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
