@@ -28,7 +28,8 @@ function PerformanceBadge({ rate }: { rate: number | undefined }) {
 }
 
 export default function SupplierListPage() {
-  const { data: suppliers, isLoading, error, refetch } = useSupplierQuery();
+  const { data: pagedData, isLoading, error, refetch } = useSupplierQuery();
+  const suppliers = pagedData?.content ?? [];
   const [selectedSupplier, setSelectedSupplier] = useState<SupplierResponse | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showMapModal, setShowMapModal] = useState(false);
@@ -110,10 +111,10 @@ export default function SupplierListPage() {
       </div>
 
       {/* Summary Cards */}
-      {suppliers && (
+      {pagedData && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="card text-center py-4">
-            <p className="text-2xl font-semibold font-mono text-slate-900">{suppliers.length}</p>
+            <p className="text-2xl font-semibold font-mono text-slate-900">{pagedData.totalElements}</p>
             <p className="text-xs text-slate-500 mt-1">Total Suppliers</p>
           </div>
           <div className="card text-center py-4">
@@ -152,7 +153,7 @@ export default function SupplierListPage() {
       )}
 
       {/* Main Supplier Table */}
-      {suppliers && (
+      {pagedData && (
         <div className="card overflow-hidden p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">

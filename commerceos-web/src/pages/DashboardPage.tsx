@@ -6,6 +6,7 @@
    ============================================================================= */
 
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { checkHealth, type HealthResponse } from '../api/health';
 
@@ -64,9 +65,9 @@ const quickActions = [
     color: 'border-l-amber-600',
   },
   {
-    title: 'Analytics Dashboard',
-    description: 'View KPIs: stock health, supplier score, procurement cost',
-    to: '/analytics',
+    title: 'Purchase Orders',
+    description: 'Manage purchase orders and procurement workflow',
+    to: '/purchase-orders',
     color: 'border-l-cyan-700',
   },
 ];
@@ -185,16 +186,16 @@ export default function DashboardPage() {
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {quickActions.map((action) => (
-            <a
+            <Link
               key={action.to}
-              href={action.to}
+              to={action.to}
               className={`block card border-l-4 ${action.color} hover:shadow-md transition-shadow duration-150`}
             >
               <h3 className="font-medium text-slate-900">{action.title}</h3>
               <p className="text-sm text-slate-500 mt-1">
                 {action.description}
               </p>
-            </a>
+            </Link>
           ))}
         </div>
       </div>

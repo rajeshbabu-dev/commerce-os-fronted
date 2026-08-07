@@ -58,7 +58,8 @@ function SummaryCards({ items }: { items: StockItemResponse[] }) {
 // ---------------------------------------------------------------------------
 
 export default function InventoryListPage() {
-  const { data: stockItems, isLoading, error } = useInventoryQuery();
+  const { data: pagedData, isLoading, error } = useInventoryQuery();
+  const stockItems = pagedData?.content ?? [];
 
   return (
     <div className="page-container">
@@ -110,7 +111,7 @@ export default function InventoryListPage() {
       )}
 
       {/* Data Loaded */}
-      {stockItems && (
+      {pagedData && (
         <>
           {/* Summary Cards */}
           <SummaryCards items={stockItems} />

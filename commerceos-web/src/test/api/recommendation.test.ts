@@ -49,8 +49,9 @@ describe('Recommendation API', () => {
 
   describe('listRecommendations', () => {
     it('calls GET /recommendations without params when status is omitted', async () => {
+      const pagedData = { content: [mockRec], page: 0, size: 20, totalElements: 1, totalPages: 1, first: true, last: true };
       mockApi.get.mockResolvedValue({
-        data: { success: true, message: 'OK', data: [mockRec] },
+        data: { success: true, message: 'OK', data: pagedData },
       });
 
       const result = await listRecommendations();
@@ -58,12 +59,13 @@ describe('Recommendation API', () => {
       expect(mockApi.get).toHaveBeenCalledWith('/recommendations', {
         params: undefined,
       });
-      expect(result).toEqual([mockRec]);
+      expect(result).toEqual(pagedData);
     });
 
     it('calls GET /recommendations with status parameter when provided', async () => {
+      const pagedData = { content: [mockRec], page: 0, size: 20, totalElements: 1, totalPages: 1, first: true, last: true };
       mockApi.get.mockResolvedValue({
-        data: { success: true, message: 'OK', data: [mockRec] },
+        data: { success: true, message: 'OK', data: pagedData },
       });
 
       const result = await listRecommendations('OPEN');
@@ -71,7 +73,7 @@ describe('Recommendation API', () => {
       expect(mockApi.get).toHaveBeenCalledWith('/recommendations', {
         params: { status: 'OPEN' },
       });
-      expect(result).toEqual([mockRec]);
+      expect(result).toEqual(pagedData);
     });
   });
 

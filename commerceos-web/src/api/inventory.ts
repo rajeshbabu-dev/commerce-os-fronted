@@ -43,17 +43,43 @@ export interface StockMovementResponse {
   createdAt: string;
 }
 
+export interface PagedResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+}
+
+export interface PaginationParams {
+  page?: number;
+  size?: number;
+  sort?: string;
+}
+
 // ---------------------------------------------------------------------------
 // Inventory API
 // ---------------------------------------------------------------------------
 
-export async function listStockItems(): Promise<StockItemResponse[]> {
-  const { data } = await api.get<ApiResponse<StockItemResponse[]>>('/inventory/stock-items');
+export async function listStockItems(
+  params?: PaginationParams,
+): Promise<PagedResponse<StockItemResponse>> {
+  const { data } = await api.get<ApiResponse<PagedResponse<StockItemResponse>>>(
+    '/inventory/stock-items',
+    { params },
+  );
   return data.data;
 }
 
-export async function listProducts(): Promise<ProductResponse[]> {
-  const { data } = await api.get<ApiResponse<ProductResponse[]>>('/inventory/products');
+export async function listProducts(
+  params?: PaginationParams,
+): Promise<PagedResponse<ProductResponse>> {
+  const { data } = await api.get<ApiResponse<PagedResponse<ProductResponse>>>(
+    '/inventory/products',
+    { params },
+  );
   return data.data;
 }
 

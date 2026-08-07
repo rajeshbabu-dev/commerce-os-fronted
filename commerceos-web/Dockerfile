@@ -32,18 +32,25 @@ RUN printf 'server {\n\
     root /usr/share/nginx/html;\n\
     index index.html;\n\
 \n\
-    # API proxy — uses host.docker.internal to reach backend on host machine
-    # (the frontend docker-compose is standalone; backend runs separately)
+    # API proxy — uses Docker service name when running in root docker-compose.yml\n\
     location /api/ {\n\
-        proxy_pass http://host.docker.internal:8080;\n\
+        proxy_pass http://backend:8080;\n\
         proxy_set_header Host $host;\n\
         proxy_set_header X-Real-IP $remote_addr;\n\
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n\
         proxy_set_header X-Forwarded-Proto $scheme;\n\
     }\n\
 \n\
+    # Hashed assets — cache aggressively (Vite adds content hash to filename)\n\
+    location /assets/ {\n\
+        expires 1y;\n\
+        add_header Cache-Control "public, immutable";\n\
+    }\n\
+\n\
     location / {\n\
         try_files $uri $uri/ /index.html;\n\
+        # No-cache for HTML to always get latest index.html with new asset hashes\n\
+        add_header Cache-Control "no-cache, no-store, must-revalidate";\n\
     }\n\
 }\n' > /etc/nginx/conf.d/default.conf
 

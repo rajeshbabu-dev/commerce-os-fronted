@@ -32,16 +32,24 @@ describe('SupplierListPage', () => {
 
   it('renders supplier table with summary cards', () => {
     mockUseSupplierQuery.mockReturnValue({
-      data: [
-        {
-          id: '1',
-          name: 'Acme Electronics',
-          contactEmail: 'sales@acme.com',
-          paymentTerms: 'NET_30',
-          active: true,
-          performance: { fulfillmentRate: 98.5, avgLeadTimeDays: 5 },
-        },
-      ],
+      data: {
+        content: [
+          {
+            id: '1',
+            name: 'Acme Electronics',
+            contactEmail: 'sales@acme.com',
+            paymentTerms: 'NET_30',
+            active: true,
+            performance: { fulfillmentRate: 98.5, avgLeadTimeDays: 5 },
+          },
+        ],
+        page: 0,
+        size: 20,
+        totalElements: 1,
+        totalPages: 1,
+        first: true,
+        last: true,
+      },
       isLoading: false,
       error: null,
     });

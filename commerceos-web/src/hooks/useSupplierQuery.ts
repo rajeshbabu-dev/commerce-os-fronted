@@ -3,12 +3,18 @@
    ============================================================================= */
 
 import { useQuery } from '@tanstack/react-query';
-import { listSuppliers, listSupplierProducts, type SupplierResponse, type SupplierProductResponse } from '../api/supplier';
+import {
+  listSuppliers,
+  listSupplierProducts,
+  type SupplierResponse,
+  type SupplierProductResponse,
+  type PagedResponse,
+} from '../api/supplier';
 
 export function useSupplierQuery() {
-  return useQuery<SupplierResponse[], Error>({
+  return useQuery<PagedResponse<SupplierResponse>, Error>({
     queryKey: ['suppliers'],
-    queryFn: listSuppliers,
+    queryFn: () => listSuppliers({ page: 0, size: 100 }),
     staleTime: 30_000,
     refetchInterval: 60_000,
   });
