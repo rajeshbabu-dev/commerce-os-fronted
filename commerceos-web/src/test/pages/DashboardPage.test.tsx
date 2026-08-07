@@ -4,6 +4,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import DashboardPage from '../../pages/DashboardPage';
 
 // Mock the useAuth hook
@@ -14,6 +15,15 @@ vi.mock('../../context/AuthContext', async () => {
     useAuth: vi.fn(),
   };
 });
+
+// Mock the health API
+vi.mock('../../api/health', () => ({
+  checkHealth: vi.fn().mockResolvedValue({
+    status: 'UP',
+    service: 'commerceos-backend',
+    timestamp: '2026-08-06T10:00:00',
+  }),
+}));
 
 import { useAuth } from '../../context/AuthContext';
 
@@ -38,7 +48,11 @@ describe('DashboardPage', () => {
   });
 
   it('should render welcome message with username', () => {
-    render(<DashboardPage />);
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>,
+    );
     expect(screen.getByText(/Welcome back.*admin/i)).toBeInTheDocument();
   });
 
@@ -53,12 +67,20 @@ describe('DashboardPage', () => {
       clearError: vi.fn(),
     });
 
-    render(<DashboardPage />);
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>,
+    );
     expect(screen.getByText('Welcome back')).toBeInTheDocument();
   });
 
   it('should render all 4 KPI cards', () => {
-    render(<DashboardPage />);
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByText('Inventory Health')).toBeInTheDocument();
     expect(screen.getByText('Supplier Score')).toBeInTheDocument();
@@ -67,23 +89,35 @@ describe('DashboardPage', () => {
   });
 
   it('should show placeholder values for KPI cards', () => {
-    render(<DashboardPage />);
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>,
+    );
 
     const placeholders = screen.getAllByText('--');
     expect(placeholders.length).toBeGreaterThanOrEqual(4);
   });
 
-  it('should render Quick Actions with all 4 links', () => {
-    render(<DashboardPage />);
+  it('should render Quick Actions with links', () => {
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByText('View Inventory')).toBeInTheDocument();
     expect(screen.getByText('Browse Recommendations')).toBeInTheDocument();
     expect(screen.getByText('Pending Approvals')).toBeInTheDocument();
-    expect(screen.getByText('Analytics Dashboard')).toBeInTheDocument();
+    expect(screen.getByText('Purchase Orders')).toBeInTheDocument();
   });
 
   it('should render Account Info section with user details', () => {
-    render(<DashboardPage />);
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByText('Account Info')).toBeInTheDocument();
     expect(screen.getByText('ADMIN')).toBeInTheDocument();

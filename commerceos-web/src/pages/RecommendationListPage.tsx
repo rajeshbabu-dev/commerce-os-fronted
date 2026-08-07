@@ -66,10 +66,11 @@ export default function RecommendationListPage() {
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
 
   const {
-    data: recommendations,
+    data: pagedData,
     isLoading,
     error,
   } = useRecommendationQuery(selectedStatus === 'ALL' ? undefined : selectedStatus);
+  const recommendations = pagedData?.content ?? [];
 
   const dismissMutation = useDismissRecommendationMutation();
 

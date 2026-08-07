@@ -30,10 +30,20 @@ export interface PurchaseRecommendationResponse {
 // Recommendation API Functions
 // ---------------------------------------------------------------------------
 
+export interface PagedResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+}
+
 export async function listRecommendations(
   status?: string,
-): Promise<PurchaseRecommendationResponse[]> {
-  const { data } = await api.get<ApiResponse<PurchaseRecommendationResponse[]>>(
+): Promise<PagedResponse<PurchaseRecommendationResponse>> {
+  const { data } = await api.get<ApiResponse<PagedResponse<PurchaseRecommendationResponse>>>(
     '/recommendations',
     {
       params: status && status !== 'ALL' ? { status } : undefined,

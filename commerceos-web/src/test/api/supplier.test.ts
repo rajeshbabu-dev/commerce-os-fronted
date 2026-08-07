@@ -20,12 +20,24 @@ describe('Supplier API', () => {
     vi.clearAllMocks();
   });
 
-  it('listSuppliers calls GET /suppliers and unwraps data', async () => {
-    const mockData = [{ id: '1', name: 'Acme', contactEmail: 'acme@test.com', paymentTerms: 'NET_30', active: true }];
-    mockApi.get.mockResolvedValue({ data: { success: true, message: 'OK', data: mockData } });
+  it('listSuppliers calls GET /suppliers with pagination params and unwraps data', async () => {
+    const mockPaged = {
+      content: [
+        { id: '1', name: 'Acme', contactEmail: 'acme@test.com', paymentTerms: 'NET_30', active: true },
+      ],
+      page: 0,
+      size: 100,
+      totalElements: 1,
+      totalPages: 1,
+      first: true,
+      last: true,
+    };
+    mockApi.get.mockResolvedValue({ data: { success: true, message: 'OK', data: mockPaged } });
 
-    const result = await listSuppliers();
-    expect(mockApi.get).toHaveBeenCalledWith('/suppliers');
-    expect(result).toEqual(mockData);
+    const result = await listSuppliers({ page: 0, size: 100 });
+    expect(mockApi.get).toHaveBeenCalledWith('/suppliers', {
+      params: { page: 0, size: 100 },
+    });
+    expect(result).toEqual(mockPaged);
   });
 });

@@ -64,12 +64,33 @@ export interface ProductOption {
   sku: string;
 }
 
+export interface PagedResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+}
+
+export interface PaginationParams {
+  page?: number;
+  size?: number;
+  sort?: string;
+}
+
 // ---------------------------------------------------------------------------
 // Supplier API
 // ---------------------------------------------------------------------------
 
-export async function listSuppliers(): Promise<SupplierResponse[]> {
-  const { data } = await api.get<ApiResponse<SupplierResponse[]>>('/suppliers');
+export async function listSuppliers(
+  params?: PaginationParams,
+): Promise<PagedResponse<SupplierResponse>> {
+  const { data } = await api.get<ApiResponse<PagedResponse<SupplierResponse>>>(
+    '/suppliers',
+    { params },
+  );
   return data.data;
 }
 

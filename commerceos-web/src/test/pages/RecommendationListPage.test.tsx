@@ -84,6 +84,16 @@ describe('RecommendationListPage', () => {
     },
   ];
 
+  const pagedRecommendations = {
+    content: sampleRecommendations,
+    page: 0,
+    size: 20,
+    totalElements: sampleRecommendations.length,
+    totalPages: 1,
+    first: true,
+    last: true,
+  };
+
   it('renders loading state', () => {
     mockUseRecommendationQuery.mockReturnValue({
       data: undefined,
@@ -110,7 +120,7 @@ describe('RecommendationListPage', () => {
 
   it('renders recommendation list with summary statistics and cards', () => {
     mockUseRecommendationQuery.mockReturnValue({
-      data: sampleRecommendations,
+      data: pagedRecommendations,
       isLoading: false,
       error: null,
     });
@@ -140,7 +150,7 @@ describe('RecommendationListPage', () => {
 
   it('handles tab switching between All, Open, and Dismissed', () => {
     mockUseRecommendationQuery.mockReturnValue({
-      data: sampleRecommendations,
+      data: pagedRecommendations,
       isLoading: false,
       error: null,
     });
@@ -168,7 +178,7 @@ describe('RecommendationListPage', () => {
 
   it('calls dismiss mutation when Dismiss button is clicked', () => {
     mockUseRecommendationQuery.mockReturnValue({
-      data: [sampleRecommendations[0]],
+      data: { content: [sampleRecommendations[0]], page: 0, size: 20, totalElements: 1, totalPages: 1, first: true, last: true },
       isLoading: false,
       error: null,
     });

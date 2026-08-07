@@ -19,8 +19,11 @@ import AdminUserManagementPage from './pages/AdminUserManagementPage';
 import InventoryListPage from './pages/InventoryListPage';
 import SupplierListPage from './pages/SupplierListPage';
 import RecommendationListPage from './pages/RecommendationListPage';
+import PurchaseOrderListPage from './pages/PurchaseOrderListPage';
+import PurchaseOrderDetailPage from './pages/PurchaseOrderDetailPage';
+import ApprovalQueuePage from './pages/ApprovalQueuePage';
 
-// Placeholder pages for future tickets
+// Placeholder page for future modules
 function PlaceholderPage({ title }: { title: string }) {
   return (
     <div className="page-container">
@@ -34,12 +37,6 @@ function PlaceholderPage({ title }: { title: string }) {
   );
 }
 
-function PurchaseOrdersPage() {
-  return <PlaceholderPage title="Purchase Orders" />;
-}
-function ApprovalsPage() {
-  return <PlaceholderPage title="Approval Queue" />;
-}
 function AnalyticsPage() {
   return <PlaceholderPage title="Analytics Dashboard" />;
 }
@@ -67,8 +64,9 @@ export default function App() {
             <Route path="inventory" element={<InventoryListPage />} />
             <Route path="suppliers" element={<SupplierListPage />} />
             <Route path="recommendations" element={<RecommendationListPage />} />
-            <Route path="purchase-orders" element={<PurchaseOrdersPage />} />
-            <Route path="approvals" element={<ApprovalsPage />} />
+            <Route path="purchase-orders" element={<PurchaseOrderListPage />} />
+            <Route path="purchase-orders/:id" element={<PurchaseOrderDetailPage />} />
+            <Route path="approvals" element={<ApprovalQueuePage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
             <Route path="admin/users" element={<AdminUserManagementPage />} />
           </Route>

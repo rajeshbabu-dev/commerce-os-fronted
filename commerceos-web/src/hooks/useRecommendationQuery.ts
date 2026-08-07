@@ -8,10 +8,11 @@ import {
   generateRecommendation,
   listRecommendations,
   type PurchaseRecommendationResponse,
+  type PagedResponse,
 } from '../api/recommendation';
 
 export function useRecommendationQuery(status?: string) {
-  return useQuery<PurchaseRecommendationResponse[], Error>({
+  return useQuery<PagedResponse<PurchaseRecommendationResponse>, Error>({
     queryKey: ['recommendations', status ?? 'ALL'],
     queryFn: () => listRecommendations(status),
     staleTime: 30_000,

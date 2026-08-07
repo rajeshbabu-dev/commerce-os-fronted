@@ -25,6 +25,57 @@ function renderWithProviders() {
   );
 }
 
+const mockPagedData = {
+  content: [
+    {
+      id: '1',
+      product: {
+        id: 'p1',
+        name: 'Wireless Headphones',
+        sku: 'SKU-WBH-001',
+        description: 'Test description',
+        unitOfMeasure: 'UNIT',
+        createdAt: '2026-01-01',
+        updatedAt: '2026-01-01',
+      },
+      quantityOnHand: 150,
+      quantityReserved: 10,
+      reorderPoint: 25,
+      safetyStock: 10,
+      status: 'HEALTHY',
+      version: 0,
+      createdAt: '2026-01-01',
+      updatedAt: '2026-01-01',
+    },
+    {
+      id: '2',
+      product: {
+        id: 'p2',
+        name: 'Monitor Stand',
+        sku: 'SKU-MSA-005',
+        description: null,
+        unitOfMeasure: 'UNIT',
+        createdAt: '2026-01-01',
+        updatedAt: '2026-01-01',
+      },
+      quantityOnHand: 0,
+      quantityReserved: 0,
+      reorderPoint: 10,
+      safetyStock: 5,
+      status: 'OUT_OF_STOCK',
+      version: 0,
+      createdAt: '2026-01-01',
+      updatedAt: '2026-01-01',
+    },
+  ],
+  page: 0,
+  size: 20,
+  totalElements: 2,
+  totalPages: 1,
+  first: true,
+  last: true,
+};
+
 describe('InventoryListPage', () => {
   it('renders loading state', () => {
     mockUseInventoryQuery.mockReturnValue({
@@ -52,48 +103,7 @@ describe('InventoryListPage', () => {
 
   it('renders inventory table with stock items', () => {
     mockUseInventoryQuery.mockReturnValue({
-      data: [
-        {
-          id: '1',
-          product: {
-            id: 'p1',
-            name: 'Wireless Headphones',
-            sku: 'SKU-WBH-001',
-            description: 'Test description',
-            unitOfMeasure: 'UNIT',
-            createdAt: '2026-01-01',
-            updatedAt: '2026-01-01',
-          },
-          quantityOnHand: 150,
-          quantityReserved: 10,
-          reorderPoint: 25,
-          safetyStock: 10,
-          status: 'HEALTHY',
-          version: 0,
-          createdAt: '2026-01-01',
-          updatedAt: '2026-01-01',
-        },
-        {
-          id: '2',
-          product: {
-            id: 'p2',
-            name: 'Monitor Stand',
-            sku: 'SKU-MSA-005',
-            description: null,
-            unitOfMeasure: 'UNIT',
-            createdAt: '2026-01-01',
-            updatedAt: '2026-01-01',
-          },
-          quantityOnHand: 0,
-          quantityReserved: 0,
-          reorderPoint: 10,
-          safetyStock: 5,
-          status: 'OUT_OF_STOCK',
-          version: 0,
-          createdAt: '2026-01-01',
-          updatedAt: '2026-01-01',
-        },
-      ],
+      data: mockPagedData,
       isLoading: false,
       error: null,
     });
@@ -116,7 +126,7 @@ describe('InventoryListPage', () => {
 
   it('renders empty state when no items', () => {
     mockUseInventoryQuery.mockReturnValue({
-      data: [],
+      data: { ...mockPagedData, content: [], totalElements: 0 },
       isLoading: false,
       error: null,
     });
