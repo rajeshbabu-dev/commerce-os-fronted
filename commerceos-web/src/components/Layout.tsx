@@ -9,6 +9,7 @@ import { useState } from 'react';
 import type { JSX } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import NotificationBell from './NotificationBell';
 
 // ---------------------------------------------------------------------------
 // Navigation items
@@ -86,6 +87,15 @@ const navItems: NavItem[] = [
     ),
   },
   {
+    label: 'Event Log',
+    to: '/analytics/events',
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+      </svg>
+    ),
+  },
+  {
     label: 'User Management',
     to: '/admin/users',
     adminOnly: true,
@@ -130,6 +140,9 @@ export default function Layout() {
             C
           </div>
           <span className="font-semibold text-slate-900">CommerceOS</span>
+          <div className="ml-auto">
+            <NotificationBell />
+          </div>
         </div>
 
         {/* Navigation */}
@@ -196,6 +209,9 @@ export default function Layout() {
               C
             </div>
             <span className="font-semibold text-slate-900">CommerceOS</span>
+            <div className="ml-auto">
+              <NotificationBell />
+            </div>
           </div>
         </header>
 

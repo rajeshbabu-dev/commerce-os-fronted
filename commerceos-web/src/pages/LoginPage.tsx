@@ -16,18 +16,18 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Redirect if already authenticated
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? '/dashboard';
-  if (isAuthenticated && !isLoading) {
-    return <Navigate to={from} replace />;
-  }
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fieldErrors, setFieldErrors] = useState<{
     email?: string;
     password?: string;
   }>({});
+
+  // Redirect if already authenticated
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? '/dashboard';
+  if (isAuthenticated && !isLoading) {
+    return <Navigate to={from} replace />;
+  }
 
   // ---------------------------------------------------------------------------
   // Validation

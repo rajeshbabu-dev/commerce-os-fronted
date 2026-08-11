@@ -22,24 +22,8 @@ import RecommendationListPage from './pages/RecommendationListPage';
 import PurchaseOrderListPage from './pages/PurchaseOrderListPage';
 import PurchaseOrderDetailPage from './pages/PurchaseOrderDetailPage';
 import ApprovalQueuePage from './pages/ApprovalQueuePage';
-
-// Placeholder page for future modules
-function PlaceholderPage({ title }: { title: string }) {
-  return (
-    <div className="page-container">
-      <div className="card text-center py-16">
-        <h2 className="text-lg font-semibold text-slate-900 mb-2">{title}</h2>
-        <p className="text-sm text-slate-500">
-          This module is coming soon.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function AnalyticsPage() {
-  return <PlaceholderPage title="Analytics Dashboard" />;
-}
+import AnalyticsPage from './pages/AnalyticsPage';
+import EventLogPage from './pages/EventLogPage';
 
 export default function App() {
   return (
@@ -68,6 +52,7 @@ export default function App() {
             <Route path="purchase-orders/:id" element={<PurchaseOrderDetailPage />} />
             <Route path="approvals" element={<ApprovalQueuePage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="analytics/events" element={<EventLogPage />} />
             <Route path="admin/users" element={<AdminUserManagementPage />} />
           </Route>
 
