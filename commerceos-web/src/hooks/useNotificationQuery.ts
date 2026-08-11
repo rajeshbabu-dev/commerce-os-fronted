@@ -5,6 +5,7 @@
    ============================================================================= */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { tokenStore } from '../api/axios';
 import {
   getUnreadNotificationCount,
   listMyNotifications,
@@ -16,20 +17,24 @@ import {
 const POLL_INTERVAL = 30_000;
 
 export function useNotificationsQuery() {
+  const hasToken = !!tokenStore.getAccessToken();
   return useQuery<PagedResponse<NotificationResponse>, Error>({
     queryKey: ['notifications'],
     queryFn: () => listMyNotifications(),
+    enabled: hasToken,
     staleTime: 15_000,
-    refetchInterval: POLL_INTERVAL,
+    refetchInterval: hasToken ? POLL_INTERVAL : false,
   });
 }
 
 export function useUnreadCountQuery() {
+  const hasToken = !!tokenStore.getAccessToken();
   return useQuery<number, Error>({
     queryKey: ['notifications', 'unread-count'],
     queryFn: () => getUnreadNotificationCount(),
+    enabled: hasToken,
     staleTime: 15_000,
-    refetchInterval: POLL_INTERVAL,
+    refetchInterval: hasToken ? POLL_INTERVAL : false,
   });
 }
 
