@@ -14,6 +14,13 @@ import type { StockItemResponse } from '../api/inventory';
 // Status Badge Component
 // ---------------------------------------------------------------------------
 
+function getItemStatus(item: StockItemResponse): 'HEALTHY' | 'LOW_STOCK' | 'OUT_OF_STOCK' {
+  if (item.status) return item.status;
+  if (item.quantityOnHand <= 0) return 'OUT_OF_STOCK';
+  if (item.quantityOnHand <= item.reorderPoint) return 'LOW_STOCK';
+  return 'HEALTHY';
+}
+
 function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { className: string; label: string }> = {
     HEALTHY: { className: 'badge-success', label: 'Healthy' },
@@ -30,9 +37,9 @@ function StatusBadge({ status }: { status: string }) {
 
 function SummaryCards({ items }: { items: StockItemResponse[] }) {
   const total = items.length;
-  const healthy = items.filter((i) => i.status === 'HEALTHY').length;
-  const lowStock = items.filter((i) => i.status === 'LOW_STOCK').length;
-  const outOfStock = items.filter((i) => i.status === 'OUT_OF_STOCK').length;
+  const healthy = items.filter((i) => getItemStatus(i) === 'HEALTHY').length;
+  const lowStock = items.filter((i) => getItemStatus(i) === 'LOW_STOCK').length;
+  const outOfStock = items.filter((i) => getItemStatus(i) === 'OUT_OF_STOCK').length;
 
   const cards = [
     { label: 'Total SKUs', value: total, color: 'text-slate-900' },
@@ -151,9 +158,9 @@ export default function InventoryListPage() {
                       <td className="px-6 py-4">
                         <div>
                           <p className="font-medium text-slate-900">
-                            {item.product.name}
+                            {item.product?.name ?? 'Unnamed Product'}
                           </p>
-                          {item.product.description && (
+                          {item.product?.description && (
                             <p className="text-xs text-slate-400 mt-0.5 truncate max-w-xs">
                               {item.product.description}
                             </p>
@@ -161,19 +168,19 @@ export default function InventoryListPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 font-mono text-slate-500 text-xs">
-                        {item.product.sku}
+                        {item.product?.sku ?? 'N/A'}
                       </td>
                       <td className="px-6 py-4 font-mono text-right tabular-nums">
                         {item.quantityOnHand}
                       </td>
                       <td className="px-6 py-4 font-mono text-right tabular-nums text-slate-500">
-                        {item.quantityReserved}
+                        {item.quantityReserved ?? 0}
                       </td>
                       <td className="px-6 py-4 font-mono text-right tabular-nums text-slate-500">
                         {item.reorderPoint}
                       </td>
                       <td className="px-6 py-4">
-                        <StatusBadge status={item.status} />
+                        <StatusBadge status={getItemStatus(item)} />
                       </td>
                     </tr>
                   ))}

@@ -20,10 +20,6 @@ export default function SignUpPage() {
   const { signUp, isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  if (isAuthenticated && !authLoading) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,6 +30,10 @@ export default function SignUpPage() {
   }>({});
   const [apiError, setApiError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  if (isAuthenticated && !authLoading) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   // ---------------------------------------------------------------------------
   // Validation

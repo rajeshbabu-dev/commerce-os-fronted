@@ -107,8 +107,15 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
 
-    // Only attempt refresh on 401 and if not already retrying
-    if (error.response?.status !== 401 || originalRequest._retry) {
+    const requestUrl = originalRequest?.url ?? '';
+    const isAuthEndpoint =
+      requestUrl.includes('/auth/login') ||
+      requestUrl.includes('/auth/signup') ||
+      requestUrl.includes('/auth/register') ||
+      requestUrl.includes('/auth/refresh');
+
+    // Only attempt refresh on 401 if not an auth endpoint and not already retrying
+    if (error.response?.status !== 401 || originalRequest._retry || isAuthEndpoint) {
       return Promise.reject(error);
     }
 
