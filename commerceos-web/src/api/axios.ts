@@ -57,8 +57,13 @@ export const tokenStore: TokenStore = {
 // Axios instance
 // ---------------------------------------------------------------------------
 
+const getBaseUrl = (): string => {
+  const url = import.meta.env.VITE_API_BASE_URL ?? '/api/v1';
+  return url.endsWith('/') ? url.slice(0, -1) : url;
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? '/api/v1',
+  baseURL: getBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
