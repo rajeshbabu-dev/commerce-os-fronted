@@ -1,39 +1,13 @@
-# =============================================================================
-# CommerceOS Frontend — .dockerignore
-# =============================================================================
-# Excludes files that should NOT be sent to the Docker daemon during build.
-# =============================================================================
-
-# Git
+node_modules
+dist
 .git
 .gitignore
-
-# IDE
-.idea
-.vscode
-*.iml
-
-# Build output (rebuilt inside container)
-dist
-node_modules
-
-# Environment files
 .env
 .env.*
-!.env.example
-
-# Docker
-docker-compose*.yml
-Dockerfile*
-.dockerignore
-
-# Documentation
-*.md
-LICENSE
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+coverage
+.vscode
+.idea
