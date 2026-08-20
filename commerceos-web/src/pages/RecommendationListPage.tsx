@@ -1,7 +1,7 @@
 /* =============================================================================
    CommerceOS — Recommendation List Page
    =============================================================================
-   Per TICKET-27: Displays AI purchase recommendations, summary statistics,
+   Displays AI purchase recommendations, summary statistics,
    status filters (All, Open, Dismissed), and recommendation cards with AI insights.
    ============================================================================= */
 
@@ -13,10 +13,9 @@ import {
   useRecommendationQuery,
 } from '../hooks/useRecommendationQuery';
 import type { PurchaseRecommendationResponse } from '../api/recommendation';
-
-// ---------------------------------------------------------------------------
-// Summary Cards Component
-// ---------------------------------------------------------------------------
+import PageHeader from '../components/layout/PageHeader';
+import Card from '../components/ui/Card';
+import Badge from '../components/ui/Badge';
 
 function SummaryCards({
   recommendations,
@@ -39,27 +38,23 @@ function SummaryCards({
 
   const cards = [
     { label: 'Total Open', value: totalOpen, color: 'text-slate-900' },
-    { label: 'Critical Urgency', value: criticalCount, color: 'text-red-600' },
-    { label: 'Est Total Spend', value: formattedSpend, color: 'text-indigo-600' },
+    { label: 'Critical Urgency', value: criticalCount, color: 'text-rose-600' },
+    { label: 'Est Total Spend', value: formattedSpend, color: 'text-primary-600' },
   ];
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
       {cards.map((card) => (
-        <div key={card.label} className="card text-center py-4">
+        <Card key={card.label} className="text-center py-4">
           <p className={`text-2xl font-semibold font-mono ${card.color}`}>
             {card.value}
           </p>
           <p className="text-xs text-slate-500 mt-1">{card.label}</p>
-        </div>
+        </Card>
       ))}
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
 
 export default function RecommendationListPage() {
   const navigate = useNavigate();
@@ -96,21 +91,18 @@ export default function RecommendationListPage() {
   return (
     <div className="page-container">
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-slate-900">
-          Purchase Recommendations
-        </h1>
-        <p className="text-sm text-slate-500 mt-1">
-          AI-generated reorder suggestions based on safety stock and lead times
-        </p>
-      </div>
+      <PageHeader
+        title="Purchase Recommendations"
+        subtitle="AI-generated reorder suggestions based on safety stock and lead times"
+        badge={<Badge variant="ai">Claude Intelligence</Badge>}
+      />
 
       {/* Loading State */}
       {isLoading && (
-        <div className="card text-center py-16">
-          <div className="inline-flex items-center gap-2 text-slate-500">
+        <Card className="text-center py-16">
+          <div className="inline-flex items-center gap-2 text-slate-500 text-sm">
             <svg
-              className="animate-spin h-5 w-5"
+              className="animate-spin h-5 w-5 text-primary-600"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -130,18 +122,16 @@ export default function RecommendationListPage() {
             </svg>
             Loading recommendations...
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Error State */}
       {error && (
-        <div className="card">
-          <div className="rounded-md bg-red-50 border border-red-200 p-4">
-            <p className="text-sm text-red-700">
-              Failed to load recommendations. Please try again.
-            </p>
+        <Card>
+          <div className="rounded-md bg-rose-50 border border-rose-200 p-4 text-sm text-rose-700">
+            Failed to load recommendations. Please try again.
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Content Loaded */}
@@ -151,17 +141,17 @@ export default function RecommendationListPage() {
           <SummaryCards recommendations={recommendations} />
 
           {/* Status Filter Tabs */}
-          <div className="flex border-b border-slate-200 mb-6">
+          <div className="flex border-b border-slate-200/80 mb-6 gap-2">
             {tabs.map((tab) => {
               const isActive = selectedStatus === tab.key;
               return (
                 <button
                   key={tab.key}
                   onClick={() => setSelectedStatus(tab.key)}
-                  className={`py-2.5 px-4 font-medium text-sm border-b-2 transition-colors duration-150 ${
+                  className={`py-2 px-3.5 font-semibold text-xs rounded-t-md transition-all ${
                     isActive
-                      ? 'border-indigo-600 text-indigo-600'
-                      : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                      ? 'border-b-2 border-primary-600 text-primary-700 bg-primary-50/50'
+                      : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                   }`}
                 >
                   {tab.label}
@@ -186,11 +176,9 @@ export default function RecommendationListPage() {
               ))}
             </div>
           ) : (
-            <div className="card text-center py-12">
-              <p className="text-sm text-slate-500">
-                No recommendations found for status &quot;{selectedStatus}&quot;.
-              </p>
-            </div>
+            <Card className="text-center py-12 text-slate-500 text-sm">
+              No recommendations found for status &quot;{selectedStatus}&quot;.
+            </Card>
           )}
         </>
       )}
