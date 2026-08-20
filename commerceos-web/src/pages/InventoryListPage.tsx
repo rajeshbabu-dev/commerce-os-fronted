@@ -157,16 +157,6 @@ export default function InventoryListPage() {
         title="Inventory"
         subtitle="Track product stock levels, safety buffer, and reorder status"
         badge={<Badge variant="neutral">{stockItems.length} SKUs</Badge>}
-        actions={
-          <Button
-            variant="primary"
-            size="md"
-            leftIcon={<Plus className="w-4 h-4" />}
-            onClick={openAddModal}
-          >
-            Add Inventory
-          </Button>
-        }
       />
 
       {/* Loading State */}
@@ -214,7 +204,7 @@ export default function InventoryListPage() {
           {/* Summary Cards */}
           <SummaryCards items={stockItems} />
 
-          {/* Search & Filter Toolbar with Right-Corner Add Inventory Button */}
+          {/* Search & Filter Toolbar with Single Right-Corner Add Inventory Button */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
             <div className="relative w-full sm:w-80">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />

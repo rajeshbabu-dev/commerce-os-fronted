@@ -118,21 +118,11 @@ export default function SupplierListPage() {
 
   return (
     <div className="page-container">
-      {/* Page Header */}
+      {/* Page Header with Badge only */}
       <PageHeader
         title="Suppliers"
         subtitle="Manage vendor catalog relationships, performance ratings, and payment terms"
         badge={<Badge variant="neutral">{suppliers.length} Vendors</Badge>}
-        actions={
-          <Button
-            variant="primary"
-            size="md"
-            leftIcon={<Plus className="w-4 h-4" />}
-            onClick={() => setShowAddModal(true)}
-          >
-            Add Supplier
-          </Button>
-        }
       />
 
       {/* Loading State */}
@@ -160,7 +150,7 @@ export default function SupplierListPage() {
       {/* Data Loaded - Full Width Clean Table */}
       {pagedData && (
         <div className="space-y-4">
-          {/* Search & Actions Toolbar */}
+          {/* Search & Single Add Supplier Toolbar on Right Corner */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="relative w-full sm:w-80">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
