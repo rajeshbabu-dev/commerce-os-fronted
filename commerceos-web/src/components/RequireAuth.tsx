@@ -1,17 +1,16 @@
 /* =============================================================================
    CommerceOS — RequireAuth Route Guard
    =============================================================================
-   Redirects unauthenticated users to /login.
+   Redirects unauthenticated users to the public home page (/).
    Shows a full-page spinner while the auth state is being initialized
    (e.g., verifying a stored token on page load).
    ============================================================================= */
 
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function RequireAuth({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
-  const location = useLocation();
 
   // Show loading spinner while verifying stored token
   if (isLoading) {
@@ -44,8 +43,8 @@ export default function RequireAuth({ children }: { children: React.ReactNode })
   }
 
   if (!isAuthenticated) {
-    // Save the attempted URL so we can redirect back after login
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    // Redirect unauthenticated visitors or upon logout to the public home/landing page
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;

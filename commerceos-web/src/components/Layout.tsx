@@ -7,7 +7,7 @@
 
 import { useState } from 'react';
 import type { JSX } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import NotificationBell from './NotificationBell';
 import Breadcrumbs from './layout/Breadcrumbs';
@@ -119,6 +119,12 @@ export default function Layout() {
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/', { replace: true });
+  };
 
   const rawName = user?.username || user?.email || 'User';
   const displayName = rawName.includes('@') ? rawName.split('@')[0] : rawName;
@@ -210,7 +216,7 @@ export default function Layout() {
               </div>
             </div>
             <button
-              onClick={logout}
+              onClick={handleLogout}
               className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
               title="Sign out"
               aria-label="Sign out"
