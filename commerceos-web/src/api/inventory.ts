@@ -59,6 +59,25 @@ export interface PaginationParams {
   sort?: string;
 }
 
+export interface CreateProductParams {
+  name: string;
+  sku: string;
+  description?: string;
+  unitOfMeasure?: string;
+}
+
+export interface CreateStockItemParams {
+  productId: string;
+  quantityOnHand: number;
+  reorderPoint: number;
+  safetyStock: number;
+}
+
+export interface AdjustStockParams {
+  quantityChanged: number;
+  reason: string;
+}
+
 // ---------------------------------------------------------------------------
 // Inventory API
 // ---------------------------------------------------------------------------
@@ -92,5 +111,20 @@ export async function getStockMovements(stockItemId: string): Promise<StockMovem
   const { data } = await api.get<ApiResponse<StockMovementResponse[]>>(
     `/inventory/stock-items/${stockItemId}/movements`,
   );
+  return data.data;
+}
+
+export async function createProduct(payload: CreateProductParams): Promise<ProductResponse> {
+  const { data } = await api.post<ApiResponse<ProductResponse>>('/inventory/products', payload);
+  return data.data;
+}
+
+export async function createStockItem(payload: CreateStockItemParams): Promise<StockItemResponse> {
+  const { data } = await api.post<ApiResponse<StockItemResponse>>('/inventory/stock-items', payload);
+  return data.data;
+}
+
+export async function adjustStock(id: string, payload: AdjustStockParams): Promise<StockMovementResponse> {
+  const { data } = await api.post<ApiResponse<StockMovementResponse>>(`/inventory/stock-items/${id}/adjust`, payload);
   return data.data;
 }

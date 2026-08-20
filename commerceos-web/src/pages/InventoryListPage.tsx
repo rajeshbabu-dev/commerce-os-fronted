@@ -5,15 +5,24 @@
    and status badge. Uses TanStack Query for live data fetching.
    Per FRONTEND-SPEC.md §1: JetBrains Mono for numeric columns,
    status badges with green/amber/red colors.
+   Includes "Add Inventory" modal to create products & stock items with live refresh.
    ============================================================================= */
 
 import { useState } from 'react';
 import { useInventoryQuery } from '../hooks/useInventoryQuery';
-import type { StockItemResponse } from '../api/inventory';
+import {
+  createProduct,
+  createStockItem,
+  listProducts,
+  type StockItemResponse,
+  type ProductResponse,
+} from '../api/inventory';
 import PageHeader from '../components/layout/PageHeader';
 import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
-import { Search } from 'lucide-react';
+import Dialog from '../components/ui/Dialog';
+import { Search, Plus, Package } from 'lucide-react';
 
 function getItemStatus(item: StockItemResponse): 'HEALTHY' | 'LOW_STOCK' | 'OUT_OF_STOCK' {
   if (item.status) return item.status;
@@ -58,14 +67,87 @@ function SummaryCards({ items }: { items: StockItemResponse[] }) {
 }
 
 export default function InventoryListPage() {
-  const { data: pagedData, isLoading, error } = useInventoryQuery();
+  const { data: pagedData, isLoading, error, refetch } = useInventoryQuery();
   const stockItems = pagedData?.content ?? [];
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Modal State
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [mode, setMode] = useState<'NEW_PRODUCT' | 'EXISTING_PRODUCT'>('NEW_PRODUCT');
+  const [existingProducts, setExistingProducts] = useState<ProductResponse[]>([]);
+  const [selectedProductId, setSelectedProductId] = useState('');
+
+  // Form Fields
+  const [name, setName] = useState('');
+  const [sku, setSku] = useState('');
+  const [description, setDescription] = useState('');
+  const [unitOfMeasure, setUnitOfMeasure] = useState('UNITS');
+  const [quantityOnHand, setQuantityOnHand] = useState('100');
+  const [reorderPoint, setReorderPoint] = useState('20');
+  const [safetyStock, setSafetyStock] = useState('10');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const openAddModal = async () => {
+    setFormError(null);
+    try {
+      const res = await listProducts({ page: 0, size: 100 });
+      setExistingProducts(res.content ?? []);
+      if (res.content?.length > 0) {
+        setSelectedProductId(res.content[0].id);
+      }
+    } catch {
+      // Ignore if products cannot be fetched
+    }
+    setShowAddModal(true);
+  };
+
+  const handleAddInventory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setFormError(null);
+
+    try {
+      let targetProductId = selectedProductId;
+
+      if (mode === 'NEW_PRODUCT') {
+        const newProduct = await createProduct({
+          name,
+          sku,
+          description: description || undefined,
+          unitOfMeasure,
+        });
+        targetProductId = newProduct.id;
+      }
+
+      await createStockItem({
+        productId: targetProductId,
+        quantityOnHand: parseInt(quantityOnHand, 10) || 0,
+        reorderPoint: parseInt(reorderPoint, 10) || 0,
+        safetyStock: parseInt(safetyStock, 10) || 0,
+      });
+
+      // Reset Form & Refetch
+      setShowAddModal(false);
+      setName('');
+      setSku('');
+      setDescription('');
+      setQuantityOnHand('100');
+      setReorderPoint('20');
+      setSafetyStock('10');
+      await refetch();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to add inventory. Please check SKU uniqueness.';
+      setFormError(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const filteredItems = stockItems.filter(
     (item) =>
-      item.product?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.product?.sku.toLowerCase().includes(searchTerm.toLowerCase())
+      item.product?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.product?.sku?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -73,8 +155,18 @@ export default function InventoryListPage() {
       {/* Page Header */}
       <PageHeader
         title="Inventory"
-        subtitle="Track product stock levels and reorder status"
+        subtitle="Track product stock levels, safety buffer, and reorder status"
         badge={<Badge variant="neutral">{stockItems.length} SKUs</Badge>}
+        actions={
+          <Button
+            variant="primary"
+            size="md"
+            leftIcon={<Plus className="w-4 h-4" />}
+            onClick={openAddModal}
+          >
+            Add Inventory
+          </Button>
+        }
       />
 
       {/* Loading State */}
@@ -122,7 +214,7 @@ export default function InventoryListPage() {
           {/* Summary Cards */}
           <SummaryCards items={stockItems} />
 
-          {/* Search & Filter Toolbar */}
+          {/* Search & Filter Toolbar with Right-Corner Add Inventory Button */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
             <div className="relative w-full sm:w-80">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
@@ -134,6 +226,16 @@ export default function InventoryListPage() {
                 className="input-field pl-9"
               />
             </div>
+
+            <Button
+              variant="primary"
+              size="md"
+              leftIcon={<Plus className="w-4 h-4" />}
+              onClick={openAddModal}
+              className="w-full sm:w-auto"
+            >
+              Add Inventory
+            </Button>
           </div>
 
           {/* Inventory Table */}
@@ -156,6 +258,9 @@ export default function InventoryListPage() {
                     </th>
                     <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-right">
                       Reorder Point
+                    </th>
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-right">
+                      Safety Stock
                     </th>
                     <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider">
                       Status
@@ -192,6 +297,9 @@ export default function InventoryListPage() {
                       <td className="px-5 py-3.5 font-mono text-right tabular-nums text-slate-500">
                         {item.reorderPoint}
                       </td>
+                      <td className="px-5 py-3.5 font-mono text-right tabular-nums text-slate-500">
+                        {item.safetyStock ?? 0}
+                      </td>
                       <td className="px-5 py-3.5">
                         <StatusBadge status={getItemStatus(item)} />
                       </td>
@@ -204,12 +312,202 @@ export default function InventoryListPage() {
             {/* Empty State */}
             {filteredItems.length === 0 && (
               <div className="text-center py-12">
+                <Package className="w-8 h-8 text-slate-300 mx-auto mb-2" />
                 <p className="text-sm text-slate-500">No inventory items found.</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  leftIcon={<Plus className="w-3.5 h-3.5" />}
+                  onClick={openAddModal}
+                  className="mt-3"
+                >
+                  Add Your First Stock Item
+                </Button>
               </div>
             )}
           </div>
         </>
       )}
+
+      {/* Add Inventory Dialog */}
+      <Dialog
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        title="Add Inventory Item"
+        description="Add a new catalog product or attach inventory levels to an existing item."
+      >
+        <form onSubmit={handleAddInventory} className="space-y-4">
+          {formError && (
+            <div className="p-3 bg-rose-50 border border-rose-200 rounded-md text-xs text-rose-700">
+              {formError}
+            </div>
+          )}
+
+          {/* Mode Selector */}
+          <div className="flex gap-4 border-b border-slate-200 pb-3">
+            <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
+              <input
+                type="radio"
+                name="mode"
+                checked={mode === 'NEW_PRODUCT'}
+                onChange={() => setMode('NEW_PRODUCT')}
+                className="text-primary-600"
+              />
+              Create New SKU
+            </label>
+            {existingProducts.length > 0 && (
+              <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
+                <input
+                  type="radio"
+                  name="mode"
+                  checked={mode === 'EXISTING_PRODUCT'}
+                  onChange={() => setMode('EXISTING_PRODUCT')}
+                  className="text-primary-600"
+                />
+                Select Existing Product
+              </label>
+            )}
+          </div>
+
+          {mode === 'NEW_PRODUCT' ? (
+            <>
+              <div>
+                <label className="block text-xs font-medium text-slate-700 mb-1">
+                  Product Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="input-field"
+                  placeholder="e.g. Precision Sensor Module"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">
+                    SKU Code *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={sku}
+                    onChange={(e) => setSku(e.target.value)}
+                    className="input-field font-mono uppercase"
+                    placeholder="SKU-SEN-001"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">
+                    Unit of Measure
+                  </label>
+                  <select
+                    value={unitOfMeasure}
+                    onChange={(e) => setUnitOfMeasure(e.target.value)}
+                    className="input-field"
+                  >
+                    <option value="UNITS">Units</option>
+                    <option value="PCS">PCS</option>
+                    <option value="BOX">Box</option>
+                    <option value="KG">KG</option>
+                    <option value="LITERS">Liters</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-700 mb-1">
+                  Description
+                </label>
+                <input
+                  type="text"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="input-field"
+                  placeholder="High-accuracy optical sensor"
+                />
+              </div>
+            </>
+          ) : (
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Choose Product *
+              </label>
+              <select
+                value={selectedProductId}
+                onChange={(e) => setSelectedProductId(e.target.value)}
+                className="input-field"
+                required
+              >
+                {existingProducts.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} ({p.sku})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Inventory Quantities */}
+          <div className="grid grid-cols-3 gap-3 pt-1 border-t border-slate-100">
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Initial Qty *
+              </label>
+              <input
+                type="number"
+                min="0"
+                required
+                value={quantityOnHand}
+                onChange={(e) => setQuantityOnHand(e.target.value)}
+                className="input-field font-mono"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Reorder Point *
+              </label>
+              <input
+                type="number"
+                min="0"
+                required
+                value={reorderPoint}
+                onChange={(e) => setReorderPoint(e.target.value)}
+                className="input-field font-mono"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Safety Stock *
+              </label>
+              <input
+                type="number"
+                min="0"
+                required
+                value={safetyStock}
+                onChange={(e) => setSafetyStock(e.target.value)}
+                className="input-field font-mono"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-3">
+            <Button
+              variant="ghost"
+              type="button"
+              onClick={() => setShowAddModal(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button variant="primary" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Adding...' : 'Add to Inventory'}
+            </Button>
+          </div>
+        </form>
+      </Dialog>
     </div>
   );
 }
