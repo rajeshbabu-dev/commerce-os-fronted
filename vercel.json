@@ -1,0 +1,12 @@
+{
+  "buildCommand": "cd commerceos-web && npm run build",
+  "outputDirectory": "commerceos-web/dist",
+  "installCommand": "cd commerceos-web && npm install",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
