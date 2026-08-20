@@ -57,9 +57,27 @@ export const tokenStore: TokenStore = {
 // Axios instance
 // ---------------------------------------------------------------------------
 
-const getBaseUrl = (): string => {
-  const url = import.meta.env.VITE_API_BASE_URL ?? '/api/v1';
-  return url.endsWith('/') ? url.slice(0, -1) : url;
+export const getBaseUrl = (): string => {
+  let url = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim() ?? '/api/v1';
+  if (!url) {
+    url = '/api/v1';
+  }
+  // Strip trailing slash
+  url = url.endsWith('/') ? url.slice(0, -1) : url;
+
+  // If full domain URL is provided (e.g., from Vercel env variable)
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    // Enforce https:// for remote domains to avoid 301/308 redirects that drop POST requests
+    if (url.startsWith('http://') && !url.includes('localhost') && !url.includes('127.0.0.1')) {
+      url = url.replace(/^http:\/\//i, 'https://');
+    }
+    // Ensure /api/v1 suffix is present
+    if (!url.endsWith('/api/v1')) {
+      url = `${url}/api/v1`;
+    }
+  }
+
+  return url;
 };
 
 const api = axios.create({
@@ -146,9 +164,7 @@ api.interceptors.response.use(
       }
 
       const { data } = await axios.post<{ data: AuthTokens }>(
-        `${
-          import.meta.env.VITE_API_BASE_URL ?? '/api/v1'
-        }/auth/refresh`,
+        `${getBaseUrl()}/auth/refresh`,
         { refreshToken },
       );
 

@@ -2,7 +2,7 @@
    CommerceOS — RequireAuth Route Guard Tests
    ============================================================================= */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '../../context/AuthContext';
@@ -27,6 +27,7 @@ function renderWithRouter(initialRoute: string) {
     <MemoryRouter initialEntries={[initialRoute]}>
       <AuthProvider>
         <Routes>
+          <Route path="/" element={<div data-testid="home-page">Home Page</div>} />
           <Route path="/login" element={<div data-testid="login-page">Login Page</div>} />
           <Route
             path="/dashboard"
@@ -36,11 +37,14 @@ function renderWithRouter(initialRoute: string) {
               </RequireAuth>
             }
           />
-          <Route path="/inventory" element={
-            <RequireAuth>
-              <div data-testid="inventory-content">Inventory Content</div>
-            </RequireAuth>
-          } />
+          <Route
+            path="/inventory"
+            element={
+              <RequireAuth>
+                <div data-testid="inventory-content">Inventory Content</div>
+              </RequireAuth>
+            }
+          />
         </Routes>
       </AuthProvider>
     </MemoryRouter>,
@@ -53,11 +57,11 @@ describe('RequireAuth', () => {
     vi.clearAllMocks();
   });
 
-  it('should redirect to /login when not authenticated', async () => {
+  it('should redirect to / when not authenticated', async () => {
     renderWithRouter('/dashboard');
 
     await waitFor(() => {
-      expect(screen.getByTestId('login-page')).toBeInTheDocument();
+      expect(screen.getByTestId('home-page')).toBeInTheDocument();
     });
 
     expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument();
@@ -86,19 +90,17 @@ describe('RequireAuth', () => {
       expect(screen.getByTestId('protected-content')).toBeInTheDocument();
     });
 
-    expect(screen.queryByTestId('login-page')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('home-page')).not.toBeInTheDocument();
   });
 
-  it('should protect all wrapped routes', async () => {
+  it('should protect all wrapped routes and redirect to home', async () => {
     renderWithRouter('/inventory');
 
     await waitFor(() => {
-      expect(screen.getByTestId('login-page')).toBeInTheDocument();
+      expect(screen.getByTestId('home-page')).toBeInTheDocument();
     });
 
-    expect(
-      screen.queryByTestId('inventory-content'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId('inventory-content')).not.toBeInTheDocument();
   });
 
   it('should show loading spinner while verifying token', async () => {
@@ -120,7 +122,7 @@ describe('RequireAuth', () => {
 
     // Should show loading state (not redirecting yet)
     expect(screen.getByText('Loading...')).toBeInTheDocument();
-    expect(screen.queryByTestId('login-page')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('home-page')).not.toBeInTheDocument();
 
     // Resolve the deferred promise to avoid hanging
     resolvePromise(null);
@@ -128,7 +130,7 @@ describe('RequireAuth', () => {
     await new Promise((r) => setTimeout(r, 10));
   });
 
-  it('should redirect to login when token verification fails', async () => {
+  it('should redirect to home when token verification fails', async () => {
     tokenStore.setTokens({
       accessToken: 'invalid-token',
       refreshToken: 'invalid-refresh',
@@ -141,7 +143,7 @@ describe('RequireAuth', () => {
     renderWithRouter('/dashboard');
 
     await waitFor(() => {
-      expect(screen.getByTestId('login-page')).toBeInTheDocument();
+      expect(screen.getByTestId('home-page')).toBeInTheDocument();
     });
 
     expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument();

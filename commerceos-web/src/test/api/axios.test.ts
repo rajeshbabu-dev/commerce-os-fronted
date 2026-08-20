@@ -91,3 +91,11 @@ describe('tokenStore', () => {
     tokenStore.onLogout = null;
   });
 });
+
+describe('getBaseUrl', () => {
+  it('should return a valid base URL ending in /api/v1', async () => {
+    const { getBaseUrl } = await import('../../api/axios');
+    const url = getBaseUrl();
+    expect(url.endsWith('/api/v1')).toBe(true);
+  });
+});
