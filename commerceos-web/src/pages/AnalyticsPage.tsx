@@ -1,8 +1,7 @@
 /* =============================================================================
-   CommerceOS — Analytics Dashboard Page (TICKET-30)
+   CommerceOS — Analytics Dashboard Page
    =============================================================================
    Visualizes the 6 KPIs from the analytics aggregate API with Recharts.
-   Layout follows FRONTEND-SPEC.md §1 spacing/card rules.
    ============================================================================= */
 
 import {
@@ -19,10 +18,10 @@ import {
 } from 'recharts';
 import { useDashboardQuery } from '../hooks/useAnalyticsQuery';
 import type { KpiValue } from '../api/analytics';
-
-// ---------------------------------------------------------------------------
-// Formatters
-// ---------------------------------------------------------------------------
+import PageHeader from '../components/layout/PageHeader';
+import Card from '../components/ui/Card';
+import Badge from '../components/ui/Badge';
+import { Users } from 'lucide-react';
 
 const inrFormatter = new Intl.NumberFormat('en-IN', {
   style: 'currency',
@@ -41,25 +40,17 @@ function formatKpiValue(kpi: KpiValue): string {
   }
 }
 
-// ---------------------------------------------------------------------------
-// KPI Card
-// ---------------------------------------------------------------------------
-
 function KpiCard({ kpi }: { kpi: KpiValue }) {
   return (
-    <div className="card" data-testid={`kpi-${kpi.key}`}>
-      <p className="text-sm text-slate-500 font-medium">{kpi.label}</p>
-      <p className="text-2xl font-semibold mt-1 text-slate-900">
+    <Card className="p-4 sm:p-5" data-testid={`kpi-${kpi.key}`}>
+      <p className="text-xs sm:text-sm text-slate-500 font-medium">{kpi.label}</p>
+      <p className="text-2xl font-bold font-mono tracking-tight mt-1 text-slate-900">
         {formatKpiValue(kpi)}
       </p>
       <p className="text-xs text-slate-400 mt-1">{kpi.description}</p>
-    </div>
+    </Card>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Analytics Dashboard Page
-// ---------------------------------------------------------------------------
 
 export default function AnalyticsPage() {
   const { data, isLoading, error } = useDashboardQuery();
@@ -75,7 +66,7 @@ export default function AnalyticsPage() {
   if (error || !data) {
     return (
       <div className="page-container">
-        <div className="card bg-red-50 text-red-700 p-4">
+        <div className="card bg-rose-50 text-rose-700 p-4 border border-rose-200">
           Failed to load analytics. Please try again.
         </div>
       </div>
@@ -112,12 +103,11 @@ export default function AnalyticsPage() {
   return (
     <div className="page-container">
       {/* Page header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-slate-900">Analytics Dashboard</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          KPIs computed from the domain event log — updated automatically as events flow in
-        </p>
-      </div>
+      <PageHeader
+        title="Analytics Dashboard"
+        subtitle="KPIs computed from the domain event log — updated automatically as events flow in"
+        badge={<Badge variant="info">Domain Stream</Badge>}
+      />
 
       {/* KPI cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -127,25 +117,27 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Active users strip */}
-      <div className="card mb-8 px-6 py-4 flex items-center justify-between">
+      <Card className="mb-8 px-6 py-4 flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-slate-900">Active users (PO submitters)</p>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+            <Users className="w-4 h-4 text-primary-600" /> Active users (PO submitters)
+          </p>
+          <p className="text-xs text-slate-500 mt-0.5">
             Distinct users who submitted purchase orders in the window
           </p>
         </div>
-        <p className="text-2xl font-semibold text-primary-600" data-testid="active-users">
+        <p className="text-2xl font-bold font-mono text-primary-600" data-testid="active-users">
           {data.activeUsers}
         </p>
-      </div>
+      </Card>
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card">
+        <Card className="p-5">
           <h2 className="text-sm font-semibold text-slate-900 mb-4">Event Trends (14 days)</h2>
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={trends}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
               <XAxis dataKey="date" tick={{ fontSize: 11 }} />
               <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
               <Tooltip />
@@ -153,23 +145,23 @@ export default function AnalyticsPage() {
               <Line type="monotone" dataKey="Low Stock" stroke="#f59e0b" strokeWidth={2} />
               <Line type="monotone" dataKey="Recommendations" stroke="#7c3aed" strokeWidth={2} />
               <Line type="monotone" dataKey="POs" stroke="#0891b2" strokeWidth={2} />
-              <Line type="monotone" dataKey="Approvals" stroke="#16a34a" strokeWidth={2} />
+              <Line type="monotone" dataKey="Approvals" stroke="#10b981" strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
-        </div>
+        </Card>
 
-        <div className="card">
+        <Card className="p-5">
           <h2 className="text-sm font-semibold text-slate-900 mb-4">Procurement Funnel</h2>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={funnelData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
               <XAxis dataKey="stage" tick={{ fontSize: 11 }} />
               <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
               <Tooltip />
               <Bar dataKey="events" fill="#4f46e5" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </Card>
       </div>
     </div>
   );

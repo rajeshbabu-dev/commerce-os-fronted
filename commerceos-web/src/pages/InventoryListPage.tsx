@@ -3,16 +3,17 @@
    =============================================================================
    Per TICKET-25: Table showing product, quantity on hand, reorder point,
    and status badge. Uses TanStack Query for live data fetching.
-   Per 08-FRONTEND-SPEC.md §1: JetBrains Mono for numeric columns,
-   status badges with amber (low) and red (critical) colors.
+   Per FRONTEND-SPEC.md §1: JetBrains Mono for numeric columns,
+   status badges with green/amber/red colors.
    ============================================================================= */
 
+import { useState } from 'react';
 import { useInventoryQuery } from '../hooks/useInventoryQuery';
 import type { StockItemResponse } from '../api/inventory';
-
-// ---------------------------------------------------------------------------
-// Status Badge Component
-// ---------------------------------------------------------------------------
+import PageHeader from '../components/layout/PageHeader';
+import Card from '../components/ui/Card';
+import Badge from '../components/ui/Badge';
+import { Search } from 'lucide-react';
 
 function getItemStatus(item: StockItemResponse): 'HEALTHY' | 'LOW_STOCK' | 'OUT_OF_STOCK' {
   if (item.status) return item.status;
@@ -31,10 +32,6 @@ function StatusBadge({ status }: { status: string }) {
   return <span className={badge.className}>{badge.label}</span>;
 }
 
-// ---------------------------------------------------------------------------
-// Summary Cards
-// ---------------------------------------------------------------------------
-
 function SummaryCards({ items }: { items: StockItemResponse[] }) {
   const total = items.length;
   const healthy = items.filter((i) => getItemStatus(i) === 'HEALTHY').length;
@@ -43,47 +40,49 @@ function SummaryCards({ items }: { items: StockItemResponse[] }) {
 
   const cards = [
     { label: 'Total SKUs', value: total, color: 'text-slate-900' },
-    { label: 'Healthy', value: healthy, color: 'text-green-600' },
+    { label: 'Healthy', value: healthy, color: 'text-emerald-600' },
     { label: 'Low Stock', value: lowStock, color: 'text-amber-600' },
-    { label: 'Out of Stock', value: outOfStock, color: 'text-red-600' },
+    { label: 'Out of Stock', value: outOfStock, color: 'text-rose-600' },
   ];
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       {cards.map((card) => (
-        <div key={card.label} className="card text-center py-4">
+        <Card key={card.label} className="text-center py-4">
           <p className={`text-2xl font-semibold font-mono ${card.color}`}>{card.value}</p>
           <p className="text-xs text-slate-500 mt-1">{card.label}</p>
-        </div>
+        </Card>
       ))}
     </div>
   );
 }
 
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
-
 export default function InventoryListPage() {
   const { data: pagedData, isLoading, error } = useInventoryQuery();
   const stockItems = pagedData?.content ?? [];
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredItems = stockItems.filter(
+    (item) =>
+      item.product?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.product?.sku.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="page-container">
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-slate-900">Inventory</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Track product stock levels and reorder status
-        </p>
-      </div>
+      <PageHeader
+        title="Inventory"
+        subtitle="Track product stock levels and reorder status"
+        badge={<Badge variant="neutral">{stockItems.length} SKUs</Badge>}
+      />
 
       {/* Loading State */}
       {isLoading && (
-        <div className="card text-center py-16">
-          <div className="inline-flex items-center gap-2 text-slate-500">
+        <Card className="text-center py-16">
+          <div className="inline-flex items-center gap-2 text-slate-500 text-sm">
             <svg
-              className="animate-spin h-5 w-5"
+              className="animate-spin h-5 w-5 text-primary-600"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -103,18 +102,18 @@ export default function InventoryListPage() {
             </svg>
             Loading inventory...
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Error State */}
       {error && (
-        <div className="card">
-          <div className="rounded-md bg-red-50 border border-red-200 p-4">
-            <p className="text-sm text-red-700">
+        <Card>
+          <div className="rounded-md bg-rose-50 border border-rose-200 p-4">
+            <p className="text-sm text-rose-700">
               Failed to load inventory data. Please try again.
             </p>
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Data Loaded */}
@@ -123,41 +122,55 @@ export default function InventoryListPage() {
           {/* Summary Cards */}
           <SummaryCards items={stockItems} />
 
+          {/* Search & Filter Toolbar */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
+            <div className="relative w-full sm:w-80">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                placeholder="Search by SKU or product name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="input-field pl-9"
+              />
+            </div>
+          </div>
+
           {/* Inventory Table */}
           <div className="card overflow-hidden p-0">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+              <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">
+                  <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-500">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider">
                       Product
                     </th>
-                    <th className="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider">
                       SKU
                     </th>
-                    <th className="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider text-right">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-right">
                       Qty on Hand
                     </th>
-                    <th className="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider text-right">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-right">
                       Reserved
                     </th>
-                    <th className="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider text-right">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-right">
                       Reorder Point
                     </th>
-                    <th className="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider">
                       Status
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {stockItems.map((item) => (
+                  {filteredItems.map((item) => (
                     <tr
                       key={item.id}
-                      className="hover:bg-slate-50 transition-colors duration-100"
+                      className="hover:bg-slate-50/70 transition-colors duration-100"
                     >
-                      <td className="px-6 py-4">
+                      <td className="px-5 py-3.5">
                         <div>
-                          <p className="font-medium text-slate-900">
+                          <p className="font-semibold text-slate-900">
                             {item.product?.name ?? 'Unnamed Product'}
                           </p>
                           {item.product?.description && (
@@ -167,19 +180,19 @@ export default function InventoryListPage() {
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 font-mono text-slate-500 text-xs">
+                      <td className="px-5 py-3.5 font-mono text-slate-600 text-xs">
                         {item.product?.sku ?? 'N/A'}
                       </td>
-                      <td className="px-6 py-4 font-mono text-right tabular-nums">
+                      <td className="px-5 py-3.5 font-mono font-medium text-right tabular-nums text-slate-900">
                         {item.quantityOnHand}
                       </td>
-                      <td className="px-6 py-4 font-mono text-right tabular-nums text-slate-500">
+                      <td className="px-5 py-3.5 font-mono text-right tabular-nums text-slate-500">
                         {item.quantityReserved ?? 0}
                       </td>
-                      <td className="px-6 py-4 font-mono text-right tabular-nums text-slate-500">
+                      <td className="px-5 py-3.5 font-mono text-right tabular-nums text-slate-500">
                         {item.reorderPoint}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-5 py-3.5">
                         <StatusBadge status={getItemStatus(item)} />
                       </td>
                     </tr>
@@ -189,7 +202,7 @@ export default function InventoryListPage() {
             </div>
 
             {/* Empty State */}
-            {stockItems.length === 0 && (
+            {filteredItems.length === 0 && (
               <div className="text-center py-12">
                 <p className="text-sm text-slate-500">No inventory items found.</p>
               </div>
