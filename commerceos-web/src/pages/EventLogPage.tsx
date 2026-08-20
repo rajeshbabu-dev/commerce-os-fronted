@@ -8,6 +8,9 @@
 import { useState } from 'react';
 import { useDomainEventsQuery } from '../hooks/useAnalyticsQuery';
 import { exportDomainEvents } from '../api/analytics';
+import PageHeader from '../components/layout/PageHeader';
+import Card from '../components/ui/Card';
+import Badge from '../components/ui/Badge';
 
 const EVENT_TYPES = [
   { value: 'ALL', label: 'All events' },
@@ -62,33 +65,33 @@ export default function EventLogPage() {
 
   return (
     <div className="page-container">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Domain Event Log</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Every published domain event, captured by the analytics module (30-day retention)
-          </p>
-        </div>
-        <button
-          onClick={handleExport}
-          disabled={exporting || !canExport}
-          className="btn-secondary"
-          data-testid="export-csv"
-        >
-          {exporting ? 'Exporting...' : 'Export CSV'}
-        </button>
-      </div>
+      {/* Page Header */}
+      <PageHeader
+        title="Domain Event Log"
+        subtitle="Every published domain event, captured by the analytics module (30-day retention)"
+        badge={<Badge variant="neutral">Audit Stream</Badge>}
+        actions={
+          <button
+            onClick={handleExport}
+            disabled={exporting || !canExport}
+            className="btn-secondary"
+            data-testid="export-csv"
+          >
+            {exporting ? 'Exporting...' : 'Export CSV'}
+          </button>
+        }
+      />
 
       {/* Filter bar */}
-      <div className="mb-6 flex items-center gap-3">
-        <label htmlFor="event-type-filter" className="text-sm font-medium text-slate-700">
+      <Card className="p-4 mb-6 flex items-center gap-3">
+        <label htmlFor="event-type-filter" className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
           Event type
         </label>
         <select
           id="event-type-filter"
           value={eventType}
           onChange={(e) => changeEventType(e.target.value)}
-          className="input border rounded-md px-3 py-2 text-sm"
+          className="input-field max-w-xs"
           data-testid="event-type-filter"
         >
           {EVENT_TYPES.map((type) => (
@@ -97,38 +100,38 @@ export default function EventLogPage() {
             </option>
           ))}
         </select>
-        <span className="text-xs text-slate-500" data-testid="total-events">
+        <span className="text-xs text-slate-500 font-mono ml-auto" data-testid="total-events">
           {data ? `${data.totalElements} event(s)` : ''}
         </span>
-      </div>
+      </Card>
 
       {exportError && (
-        <div className="card bg-red-50 text-red-700 p-4 mb-6" data-testid="export-error">
+        <Card className="bg-rose-50 text-rose-700 p-4 mb-6 border border-rose-200" data-testid="export-error">
           {exportError}
-        </div>
+        </Card>
       )}
 
       {isLoading && <p className="text-sm text-slate-500">Loading events...</p>}
 
       {error && !isLoading && (
-        <div className="card bg-red-50 text-red-700 p-4">
+        <Card className="bg-rose-50 text-rose-700 p-4 border border-rose-200">
           Failed to load events. Please try again.
-        </div>
+        </Card>
       )}
 
       {data && !isLoading && (
-        <div className="card overflow-hidden">
+        <div className="card overflow-hidden p-0">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-slate-50 text-slate-500 text-xs uppercase">
+            <table className="w-full text-xs sm:text-sm text-left">
+              <thead className="bg-slate-50/80 text-slate-500 text-xs font-semibold uppercase border-b border-slate-200">
                 <tr>
-                  <th className="px-4 py-3 font-medium">Event type</th>
-                  <th className="px-4 py-3 font-medium">Exchange</th>
-                  <th className="px-4 py-3 font-medium">Product / Entity</th>
-                  <th className="px-4 py-3 font-medium">Amount</th>
-                  <th className="px-4 py-3 font-medium">Decision</th>
-                  <th className="px-4 py-3 font-medium">Occurred at</th>
-                  <th className="px-4 py-3 font-medium">Correlation</th>
+                  <th className="px-4 py-3">Event type</th>
+                  <th className="px-4 py-3">Exchange</th>
+                  <th className="px-4 py-3">Product / Entity</th>
+                  <th className="px-4 py-3">Amount</th>
+                  <th className="px-4 py-3">Decision</th>
+                  <th className="px-4 py-3">Occurred at</th>
+                  <th className="px-4 py-3">Correlation</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -140,8 +143,8 @@ export default function EventLogPage() {
                   </tr>
                 )}
                 {data.content.map((event) => (
-                  <tr key={event.id} className="hover:bg-slate-50" data-testid="event-row">
-                    <td className="px-4 py-3 font-mono text-xs text-slate-700">
+                  <tr key={event.id} className="hover:bg-slate-50/70 transition-colors" data-testid="event-row">
+                    <td className="px-4 py-3 font-mono text-xs text-slate-900 font-medium">
                       {event.eventType}
                     </td>
                     <td className="px-4 py-3 font-mono text-xs text-slate-500">
@@ -151,19 +154,19 @@ export default function EventLogPage() {
                       <div>P: {event.productId ? event.productId.slice(0, 8) + '...' : '-'}</div>
                       <div>E: {event.entityId ? event.entityId.slice(0, 8) + '...' : '-'}</div>
                     </td>
-                    <td className="px-4 py-3 text-xs text-slate-700">
+                    <td className="px-4 py-3 text-xs font-mono font-medium text-slate-700">
                       {event.amount != null
                         ? `₹${new Intl.NumberFormat('en-IN').format(event.amount)}`
                         : '-'}
                     </td>
                     <td className="px-4 py-3 text-xs text-slate-700">
-                      {event.decision ?? '-'}
+                      {event.decision ? <Badge variant="neutral">{event.decision}</Badge> : '-'}
                     </td>
-                    <td className="px-4 py-3 text-xs text-slate-500">
+                    <td className="px-4 py-3 text-xs text-slate-500 font-mono">
                       {formatTimestamp(event.occurredAt)}
                     </td>
                     <td className="px-4 py-3 font-mono text-xs text-slate-400">
-                      {event.correlationId ?? '-'}
+                      {event.correlationId ? `${event.correlationId.slice(0, 8)}...` : '-'}
                     </td>
                   </tr>
                 ))}
